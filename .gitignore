@@ -1,0 +1,7 @@
+target/
+**/target/
+
+.ensime
+**/.ensime
+.ensime_cache/
+**/.ensime_cache/
