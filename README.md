@@ -48,6 +48,21 @@ $ sbt run
 ```
 
 
+#### Insert Dummy Data
+
+It requires *curl* command to run this script.
+Please, do not forget to run the service-stats through SBT before executing this script.
+
+
+Just run the script:
+
+```sh
+$ ./insert-dummy-data.sh
+```
+
+It will perform some HTTP post requests to http://localhost:8080, after that you can see the graph using the service-viewer project.
+
+
 #### How it works internally
 
 

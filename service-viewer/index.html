@@ -80,7 +80,7 @@
            var width = 1100 - margin.left - margin.right,
                height = 600 - margin.top - margin.bottom;
 
-           var linkDistance = 170;
+           var linkDistance = 200;
            var color = d3.scale.category10();
 
            var force = d3.layout.force()
@@ -172,7 +172,7 @@
                                     .style("pointer-events", "none")
                                     .attr({'class':'linklabel',
                                            'id':function(d,i){return 'linklabel'+i},
-                                           'dx':70,
+                                           'dx':90,
                                            'dy':-5,
                                            'font-size':12,
                                            'fill':'#666'});
