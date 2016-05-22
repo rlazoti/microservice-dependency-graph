@@ -64,6 +64,14 @@ $ ./insert-dummy-data.sh
 It will perform some HTTP post requests to http://localhost:8080, after that you can see the graph using the service-viewer project.
 
 
+#### Technology Used
+
+
+* Scala language
+* Akka HTTP
+* Scalatest
+
+
 #### How it works internally
 
 
@@ -99,6 +107,8 @@ Add TTL to all data inserted, so this way there'll be no conflict among dates.
 It's responsible for displaying the graph in a browser.
 
 It's just an HTML file (service-viewer/index.html) that you can open directly in your browser.
+
+This HTML uses: Jquery and D3.js
 
 
 PrintScreen Example:
