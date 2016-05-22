@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style>
+     .node {
+       stroke: #fff;
+       stroke-width: 1.5px;
+     }
+     .node-active{
+       stroke: #555;
+       stroke-width: 1.5px;
+     }
+     .link {
+       stroke: #555;
+       stroke-opacity: .3;
+     }
+     .link-active {
+       stroke-opacity: 1;
+       stroke-width: 1.5px;
+     }
+     .overlay {
+       fill: none;
+       pointer-events: all;
+     }
+     #map{
+       border: 2px #555 dashed;
+       width:1000px;
+       height:600px;
+     }
+    </style>
+  </head>
+  <body>
+    <p>Hour:<select id="hour"></select>  Minute: <select id="minute"></select></p>
+    <p><button id="load">Load Graph</button></p>
+
+    <div id="map"></div>
+
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" charset="utf-8"></script>
+    <script type="text/javascript">
+     $(function() {
+       var generateOption = function(value, callback) {
+         callback("<option value=" + (value < 10 ? "0" + value : value) +">" + value + "</option>");
+       };
+
+       for (var hour=0; hour<24; hour++)
+         generateOption(hour, function(opt){ $("#hour").append(opt); });
+
+       for (var minute=0; minute<59; minute++)
+         generateOption(minute, function(opt){ $("#minute").append(opt); });
+
+       $("#load").click(function() {
+         $("#map").empty();
+
+         var time = $("#hour").val() + "." + $("#minute").val();
+         d3.text("http://localhost:8080/graphdata?time=" + time, function (text) {
+           var json = JSON.parse(text);
+           var edges = [];
+
+           json.edges.forEach(function(e) {
+             var sourceNode = json.nodes.filter(function(n) {
+               return n.id === e.source;
+             })[0];
+             var targetNode = json.nodes.filter(function(n) {
+               return n.id === e.target;
+             })[0];
+
+             edges.push({
+               source: sourceNode,
+               target: targetNode,
+               rpm: e.rpm
+             });
+           });
+
+           var graph = { nodes : json.nodes, edges : edges };
+
+           var margin = {top: -5, right: -5, bottom: -5, left: -5};
+           var width = 1100 - margin.left - margin.right,
+               height = 600 - margin.top - margin.bottom;
+
+           var linkDistance = 170;
+           var color = d3.scale.category10();
+
+           var force = d3.layout.force()
+                         .charge(-200)
+                         .linkDistance([linkDistance])
+                         .size([width + margin.left + margin.right, height + margin.top + margin.bottom])
+                         .charge([-500])
+                         .theta(0.1)
+                         .gravity(0.05);
+
+           var zoom = d3.behavior.zoom()
+                        .scaleExtent([0.3, 10])
+                        .on("zoom", zoomed);
+
+           var drag = d3.behavior.drag()
+                        .origin(function(d) { return d; })
+                        .on("dragstart", dragstarted)
+                        .on("drag", dragged)
+                        .on("dragend", dragended);
+
+           var svg = d3.select("#map").append("svg")
+                       .attr("width", width + margin.left + margin.right)
+                       .attr("height", height + margin.top + margin.bottom)
+                       .append("g")
+                       .attr("transform", "translate(" + margin.left + "," + margin.right + ")")
+                       .call(zoom);
+
+           var rect = svg.append("rect")
+                         .attr("width", width)
+                         .attr("height", height)
+                         .style("fill", "none")
+                         .style("pointer-events", "all");
+
+           var container = svg.append("g");
+
+           force
+             .nodes(graph.nodes)
+             .links(graph.edges)
+             .start();
+
+           var link = container.append("g")
+                               .attr("class", "links")
+                               .selectAll(".link")
+                               .data(force.links())
+                               .enter()
+                               .append("line")
+                               .attr("class", "link")
+                               .attr('marker-end', function(d,i) { return d.rpm === 0 ? '' : 'url(#arrowhead)'})
+                               .style("stroke-width", function(d) { return Math.sqrt(d.value); });
+
+           var node = container.append("g")
+                               .attr("class", "nodes")
+                               .selectAll(".node")
+                               .data(force.nodes())
+                               .enter().append("g")
+                               .attr("class", "node")
+                               .attr("cx", function(d) { return d.x; })
+                               .attr("cy", function(d) { return d.y; })
+                               .call(drag);
+
+           var nodeLabel = container.selectAll(".nodelabel")
+                                    .data(force.nodes())
+                                    .enter()
+                                    .append("text")
+                                    .style("pointer-events", "none")
+                                    .attr({"x":function(d){return d.x;},
+                                           "y":function(d){return d.y;},
+                                           "class":"nodelabel",
+                                           "stroke":"#666"})
+                                    .text(function(d){return d.name;});
+
+           var linkPath = container.selectAll(".linkpath")
+                                   .data(force.links())
+                                   .enter()
+                                   .append('path')
+                                   .attr({'d': function(d) {return 'M '+d.source.x+' '+d.source.y+' L '+ d.target.x +' '+d.target.y},
+                                          'class':'linkpath',
+                                          'fill-opacity':0,
+                                          'stroke-opacity':0,
+                                          'fill':'blue',
+                                          'stroke':'red',
+                                          'id':function(d,i) {return 'linkpath'+i}})
+                                   .style("pointer-events", "none");
+
+           var linkLabel = container.selectAll(".linklabel")
+                                    .data(force.links())
+                                    .enter()
+                                    .append('text')
+                                    .style("pointer-events", "none")
+                                    .attr({'class':'linklabel',
+                                           'id':function(d,i){return 'linklabel'+i},
+                                           'dx':70,
+                                           'dy':-5,
+                                           'font-size':12,
+                                           'fill':'#666'});
+
+           linkLabel.append('textPath')
+                    .attr('xlink:href',function(d,i) {return '#linkpath'+i})
+                    .style("pointer-events", "none")
+                    .text(function(d,i){ return d.rpm > 0 ? d.rpm + ' req/min' : "endpoint"; });
+
+           container.append('defs').append('marker')
+                    .attr({'id':'arrowhead',
+                           'viewBox':'-0 -5 10 10',
+                           'refX':25,
+                           'refY':0,
+                           'orient':'auto',
+                           'markerWidth':10,
+                           'markerHeight':10,
+                           'xoverflow':'visible'})
+                    .append('svg:path')
+                    .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+                    .attr('fill', '#000')
+                    .attr('stroke','#000');
+
+           node.append("circle")
+               .attr("r", function(d) { return (d.nodeType === "Service" ? 4 : 1) * 2 + 12; })
+               .style("fill", function(d,i) { return d.nodeType === "Service" ? "9edae5" : "#e7ba52"; });
+
+           force.on("tick", function() {
+             link.attr("x1", function(d) { return d.source.x; })
+                 .attr("y1", function(d) { return d.source.y; })
+                 .attr("x2", function(d) { return d.target.x; })
+                 .attr("y2", function(d) { return d.target.y; });
+
+             node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+             nodeLabel.attr("x", function(d) { return d.x; })
+                      .attr("y", function(d) { return d.y; });
+
+             linkPath.attr('d', function(d) {
+               var path='M '+d.source.x+' '+d.source.y+' L '+ d.target.x +' '+d.target.y;
+               return path;
+             });
+
+             linkLabel.attr('transform',function(d){
+               if (d.target.x < d.source.x) {
+                 bbox = this.getBBox();
+                 rx = bbox.x+bbox.width/2;
+                 ry = bbox.y+bbox.height/2;
+                 return 'rotate(180 ' + rx + ' ' + ry + ')';
+               }
+               else {
+                 return 'rotate(0)';
+               }
+             });
+           });
+
+           var linkedByIndex = {};
+           force.links().forEach(function(d) {
+             linkedByIndex[d.source.index + "," + d.target.index] = 1;
+           });
+
+           function isConnected(a, b) {
+             return linkedByIndex[a.index + "," + b.index] || linkedByIndex[b.index + "," + a.index];
+           }
+
+           node.on("mouseover", function(d) {
+             node.classed("node-active", function(o) {
+               thisOpacity = isConnected(d, o) ? true : false;
+               this.setAttribute('fill-opacity', thisOpacity);
+               return thisOpacity;
+             });
+
+             link.classed("link-active", function(o) {
+               return o.source === d || o.target === d ? true : false;
+             });
+
+             d3.select(this).classed("node-active", true);
+             d3.select(this).select("circle").transition()
+               .duration(750)
+               .attr("r", ((d.nodeType === "Service" ? 4 : 1) * 2 + 12) * 1.5);
+           })
+               .on("mouseout", function(d){
+                 node.classed("node-active", false);
+                 link.classed("link-active", false);
+
+                 d3.select(this).select("circle").transition()
+                   .duration(750)
+                   .attr("r", (d.nodeType === "Service" ? 4 : 1) * 2 + 12);
+               });
+
+           function dottype(d) {
+             d.x = +d.x;
+             d.y = +d.y;
+             return d;
+           }
+
+           function zoomed() {
+             container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+           }
+
+           function dragstarted(d) {
+             d3.event.sourceEvent.stopPropagation();
+             d3.select(this).classed("dragging", true);
+             force.start();
+           }
+
+           function dragged(d) {
+             d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
+           }
+
+           function dragended(d) {
+             d3.select(this).classed("dragging", false);
+           }
+         });
+       });
+     });
+    </script>
+  </body>
+</html>

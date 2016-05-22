@@ -72,10 +72,17 @@ Currently is only possible to display a graph for a specific time (hour:minute).
 ##### What is missing
 
 
-Add TTL to all data inserted, so this there's no conflict among dates.
+Add TTL to all data inserted, so this way there'll be no conflict among dates.
 
 
 ### Service Viewer
 
 
 It's reponsible for displaying the graph in a browser.
+
+It's just an HTML file (service-viewer/index.html) that you can open directly in your browser.
+
+
+PrintScreen Example:
+
+![how it looks like](https://raw.githubusercontent.com/rlazoti/microservice-dependency-graph/master/service-viewer/screenshot.png)
