@@ -99,7 +99,7 @@ Currently is only possible to display a graph for a specific time (hour:minute).
 ##### What is missing
 
 
-Add TTL to all data inserted, so this way there'll be no conflict among dates.
+As it does not intend to be a time series graph, it would be good to determine how many time all data that represents a specific time will be available. Adding TTL to those data could fix that issue, so this way there'll be no conflict among dates.
 
 
 ### Service Viewer
