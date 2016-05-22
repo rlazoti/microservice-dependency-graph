@@ -51,6 +51,7 @@ $ sbt run
 #### Insert Dummy Data
 
 It requires *curl* command to run this script.
+
 Please, do not forget to run the service-stats through SBT before executing this script.
 
 
@@ -95,7 +96,7 @@ Add TTL to all data inserted, so this way there'll be no conflict among dates.
 ### Service Viewer
 
 
-It's reponsible for displaying the graph in a browser.
+It's responsible for displaying the graph in a browser.
 
 It's just an HTML file (service-viewer/index.html) that you can open directly in your browser.
 
