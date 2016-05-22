@@ -83,6 +83,7 @@ All data is stored into Redis using HASH format to represent graph data.
 The key for Node/Vertex is **nodes:HH.mm** (HH is the hour and mm is the minute). Example: **nodes:17.41**
 
 The key for Link/Edge is **edges:HH.mm** (HH is the hour and mm is the minute). Example: **edges:17.41**
+
 Each edge contains a value that represents how many requests it received at a specific time,
 and it can be visualized as a label **rep/min** by the service-viewer graph).
 
