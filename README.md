@@ -40,7 +40,7 @@ $ sbt test
 
 #### Run
 
-*It requires a Redis instance running.*
+*It requires a Redis instance running locally.*
 
 
 ```sh
