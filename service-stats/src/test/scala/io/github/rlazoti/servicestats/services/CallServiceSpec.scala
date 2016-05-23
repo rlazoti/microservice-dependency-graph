@@ -12,7 +12,6 @@ class CallServiceSpec extends WordSpec with Matchers with ScalatestRouteTest {
 
   "CallService API" should {
 
-    // This test needs a Redis instance running...
     "Send POST to /calling should add the CallService" in {
       val jsonRequest = ByteString(
         s"""
@@ -33,6 +32,7 @@ class CallServiceSpec extends WordSpec with Matchers with ScalatestRouteTest {
       }
     }
 
+    // This test needs a Redis instance running...
     "Send GET to /graphdata?time=01.01 should return the graph nodes ands links for that time" in {
       val getRequest = HttpRequest(
         HttpMethods.GET,
