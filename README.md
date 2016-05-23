@@ -72,6 +72,7 @@ It will perform some HTTP post requests to http://localhost:8080, after that you
 * Scala language
 * Akka HTTP
 * Scalatest
+* Redis (rediscala)
 
 
 ### How it works internally
