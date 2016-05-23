@@ -14,7 +14,7 @@ trait CallService extends CallRepository with EnableCORSDirectives {
       /**
         * The method **addServiceCalling**  will run within another Future,
         * so this way the service will return instantly without wait its result.
-        * It's basically a request and forget method, so the clients doesn't need
+        * It's basically a request and forget method, so the clients don't need
         * to wait for the whole process to be executed.
         */
       addServiceCalling(call)

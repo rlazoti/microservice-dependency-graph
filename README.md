@@ -30,7 +30,7 @@ Example:
 }
 ```
 
-*Important Note:* this process return 200 (OK) instantly (it's basically a request and forget method), this way the clients doesn't need to wait for the whole process to be executed.
+*Important Note:* this process return 200 (OK) instantly (it's basically a request and forget method), this way the clients don't need to wait for the whole process to be executed.
 
 
 ### Test
