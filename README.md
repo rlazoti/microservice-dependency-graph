@@ -35,6 +35,9 @@ Example:
 
 ### Test
 
+*It requires a Redis instance running locally.*
+
+
 ```sh
 $ sbt test
 ```
@@ -52,7 +55,7 @@ $ sbt run
 
 ### Insert Dummy Data
 
-It requires *curl* command to run this script.
+*curl* command is required to run this script.
 
 Please, do not forget to run the service-stats through SBT before executing this script.
 

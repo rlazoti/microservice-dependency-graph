@@ -113,7 +113,7 @@ trait CallRepository extends Redis with DefaultJsonProtocol {
     }
   }
 
-  // Get all nodes from an specific time
+  // Get all nodes from a specific time
   def getNodes(time: String): Future[Seq[Node]] = {
     getAllNodesFieldsAndValues(time).map { entries =>
       entries.toSeq.map { tuple =>
@@ -125,7 +125,7 @@ trait CallRepository extends Redis with DefaultJsonProtocol {
     }
   }
 
-  // Build a graph object with all nodes and edges for an specific time
+  // Build a graph object with all nodes and edges from a specific time
   def getGraph(time: String): Future[Graph] = {
     for {
       nodes <- getNodes(time)
