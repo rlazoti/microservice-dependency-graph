@@ -1,7 +1,7 @@
 Service Dependency Graph
 ====
 
-This project is used to represent microservice dependency graph.
+This project is used to store and display microservice dependency graph.
 
 
 # Projects Description
